@@ -22,16 +22,14 @@ To run this project locally, you will need **Flutter** installed on your machine
    git clone [https://github.com/AaryanSpace/Saksham_2.0.git](https://github.com/AaryanSpace/Saksham_2.0.git)
    
 2. **Navigate to the project folder:**
-   ```bash
-   cd Saksham_2.0
+   cd Saksham_2.0
 
 3. **Install dependencies:**
-   ```bash
    flutter pub get
    
 4. **Run the app:** Connect your phone (USB debugging enabled) or open an emulator, then run:
-   ```bash
     flutter run
-
 ---
 *Created with ❤️ by AaryanSpace to empower individuals with Dyscalculia to learn with confidence.*
+
+

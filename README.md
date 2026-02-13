@@ -17,18 +17,15 @@ With full voice support in English, Hindi, and Nepali, Saksham ensures that lang
 To run this project locally, you will need **Flutter** installed on your machine.
 
 1. **Clone the repository:**
-   ```bash
    git clone [https://github.com/AaryanSpace/Saksham_2.0.git](https://github.com/AaryanSpace/Saksham_2.0.git)
    
 2. **Navigate to the project folder:**
-    ```bash
    cd Saksham_2.0
 
 3. **Install dependencies:**
-    ```bash
     flutter pub get
-4. **Run the app:** Connect your phone (USB debugging enabled) or open an emulator, then run:
-    ```bash
+   
+5. **Run the app:** Connect your phone (USB debugging enabled) or open an emulator, then run:
     flutter run
 
 ---

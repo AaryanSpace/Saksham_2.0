@@ -1,36 +1,48 @@
-name: aadarsh
+name: aadarsh # NEVER DELETE: This is your core project name.
 description: A daily life learning app
-publish_to: "none"
+publish_to: "none" # NEVER DELETE: Prevents accidental publishing to pub.dev.
 
-version: 1.0.0+1
+version: 1.0.0+2 # NEVER DELETE: Update this number every time you build a new release APK.
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0" # NEVER DELETE: Tells Flutter which Dart version your code needs.
 
-dependencies:
+dependencies: # NEVER DELETE: These are the core tools your app needs to function.
   flutter:
     sdk: flutter
   flutter_tts: ^3.8.3
   audioplayers: ^5.2.1
   confetti: ^0.7.0
-  flutter_launcher_icons: "^0.13.1"
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/icon.png"
-  min_sdk_android: 21
-  adaptive_icon_background: "#121212"
-  adaptive_icon_foreground: "assets/icon.png"
-
-dev_dependencies:
+dev_dependencies: # NEVER DELETE: Tools required for building and generating files.
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: "^0.13.1"
+  flutter_native_splash: ^2.4.0 # Required for your Meta-style loading screen.
 
-flutter:
+# NEVER DELETE: This block creates the app icon on the phone's home screen.
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/logo/app_icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#121212"
+  adaptive_icon_foreground: "assets/logo/app_icon.png"
+
+# NEVER DELETE: This block creates the white loading screen with your "Created by Aaryan" image.
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/logo/app_icon.png"
+  branding: "assets/logo/branding.png"
+  android_12:
+    color: "#ffffff"
+    image: "assets/logo/app_icon.png"
+    branding: "assets/logo/branding.png"
+
+flutter: # NEVER DELETE: Core Flutter settings.
   uses-material-design: true
-  assets:
+  assets: # NEVER DELETE: If you delete this list, all your images will break in the app.
     - assets/notes/
     - assets/money/
     - assets/notes/front/
@@ -38,8 +50,4 @@ flutter:
     - assets/products/
     - assets/shop/
     - assets/logo/app_icon.png
-
-flutter_icons:
-  android: true
-  ios: false
-  image_path: "assets/logo/app_icon.png"
+    - assets/logo/branding.png # Required so the app can load your bottom text image.

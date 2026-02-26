@@ -109,6 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisSpacing: 15,
                   childAspectRatio: 1.0, // Make cards slightly taller for sub-text
                   children: [
+                   
+                  
+                   
+                   
                     // CARD 1: COUNTING
                     _buildHomeCard(
                         Icons.pie_chart_rounded,
@@ -274,7 +278,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
+// Builds a custom GlassCard UI for the dashboard.
+// Designed to be distraction-free for users with learning difficulties.
 Widget _buildHomeCard(IconData icon, String label, String subLabel, Color glowColor, VoidCallback onTap) {
     return GlassCard(
       onTap: onTap,

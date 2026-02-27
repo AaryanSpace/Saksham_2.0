@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../utils/globals.dart';
 
+
+/// A custom widget that toggles the app's language state 
+/// and updates the Text-to-Speech (TTS) voice accordingly.
+/// Currently supports English, Hindi, and Nepali.
 class LanguageButton extends StatelessWidget {
   final VoidCallback onChanged;
   const LanguageButton({super.key, required this.onChanged});

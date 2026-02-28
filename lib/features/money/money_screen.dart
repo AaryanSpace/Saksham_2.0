@@ -46,7 +46,8 @@ class _MoneyScreenState extends State<MoneyScreen> {
             ? "${targetNote['value']} रुपये खोजें"
             : "${targetNote['value']} रुपैयाँ खोज्नुहोस्"));
   }
-
+/// Handles the tap event on a currency note.
+/// Triggers a brief scaling/rotation animation before checking the answer.
   void _handleTap(int index, int value) async {
     setState(() {
       _animatingIndex = index;

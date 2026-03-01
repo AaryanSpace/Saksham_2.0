@@ -22,14 +22,54 @@ class _GroceryGameScreenState extends State<GroceryGameScreen>
   final List<int> availableNotes = [5, 10, 20, 50, 100, 500];
 
   final List<Map<String, dynamic>> products = [
-    {"image": "assets/products/rice.png", "name": "Rice", "name_hi": "चावल", "name_ne": "चामल"},
-    {"image": "assets/products/biscuit.png", "name": "Biscuit", "name_hi": "बिस्कुट", "name_ne": "बिस्कुट"},
-    {"image": "assets/products/milk.png", "name": "Milk", "name_hi": "दूध", "name_ne": "दूध"},
-    {"image": "assets/products/soap.png", "name": "Soap", "name_hi": "साबुन", "name_ne": "साबुन"},
-    {"image": "assets/products/chips.png", "name": "Chips", "name_hi": "चिप्स", "name_ne": "चिप्स"},
-    {"image": "assets/products/bread.png", "name": "Bread", "name_hi": "ब्रेड", "name_ne": "ब्रेड"},
-    {"image": "assets/products/egg.png", "name": "Eggs", "name_hi": "अंडे", "name_ne": "अण्डा" },
-    {"image": "assets/products/banana.png", "name": "Banana", "name_hi": "केला", "name_ne": "केरा"},
+    {
+      "image": "assets/products/rice.png",
+      "name": "Rice",
+      "name_hi": "चावल",
+      "name_ne": "चामल"
+    },
+    {
+      "image": "assets/products/biscuit.png",
+      "name": "Biscuit",
+      "name_hi": "बिस्कुट",
+      "name_ne": "बिस्कुट"
+    },
+    {
+      "image": "assets/products/milk.png",
+      "name": "Milk",
+      "name_hi": "दूध",
+      "name_ne": "दूध"
+    },
+    {
+      "image": "assets/products/soap.png",
+      "name": "Soap",
+      "name_hi": "साबुन",
+      "name_ne": "साबुन"
+    },
+    {
+      "image": "assets/products/chips.png",
+      "name": "Chips",
+      "name_hi": "चिप्स",
+      "name_ne": "चिप्स"
+    },
+    {
+      "image": "assets/products/bread.png",
+      "name": "Bread",
+      "name_hi": "ब्रेड",
+      "name_ne": "ब्रेड"
+    },
+    {
+      "image": "assets/products/egg.png",
+      "name": "Eggs",
+      "name_hi": "अंडे",
+      "name_ne": "अण्डा"
+    },
+    {
+      "image": "assets/products/banana.png",
+      "name": "Banana",
+      "name_hi": "केला",
+      "name_ne": "केरा"
+    },
   ];
 
   late Map<String, dynamic> currentProduct;
@@ -71,7 +111,7 @@ class _GroceryGameScreenState extends State<GroceryGameScreen>
         }
       }
     }
-    
+
     if (possiblePrices.isNotEmpty) {
       currentPrice = possiblePrices[random.nextInt(possiblePrices.length)];
     } else {
@@ -100,16 +140,19 @@ class _GroceryGameScreenState extends State<GroceryGameScreen>
   }
 
   void _changeLevel(int newLevel) {
-    setState(() { level = newLevel; correctInRow = 0; });
+    setState(() {
+      level = newLevel;
+      correctInRow = 0;
+    });
     _nextProduct();
   }
 
-void _triggerFlyAnimation(int amount) {
+  void _triggerFlyAnimation(int amount) {
     // 1. STOP if already animating (Prevents rapid tapping)
     if (_isAnimating) return;
 
     // 2. CHECK if max notes reached
-    int maxNotesAllowed = level; 
+    int maxNotesAllowed = level;
     if (notesOnCounter.length >= maxNotesAllowed) {
       String warning = "";
       if (currentLanguage == "hi-IN") {
@@ -120,7 +163,7 @@ void _triggerFlyAnimation(int amount) {
         warning = "Only $maxNotesAllowed notes allowed!";
       }
 
-      speak(warning); 
+      speak(warning);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(warning, style: const TextStyle(fontSize: 16)),
         backgroundColor: Colors.orange,
@@ -131,7 +174,7 @@ void _triggerFlyAnimation(int amount) {
 
     // 3. LOCK taps
     setState(() {
-      _isAnimating = true; 
+      _isAnimating = true;
     });
 
     playSound("coin.mp3");
@@ -142,9 +185,10 @@ void _triggerFlyAnimation(int amount) {
         Positioned(
           key: key,
           bottom: 50,
-          left: MediaQuery.of(context).size.width / 2 - 70, 
+          left: MediaQuery.of(context).size.width / 2 - 70,
           child: TweenAnimationBuilder(
-            tween: Tween<Offset>(begin: Offset.zero, end: const Offset(0, -350)), 
+            tween:
+                Tween<Offset>(begin: Offset.zero, end: const Offset(0, -350)),
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeOutBack,
             builder: (context, Offset offset, child) {
@@ -152,7 +196,8 @@ void _triggerFlyAnimation(int amount) {
                 offset: offset,
                 child: Opacity(
                   opacity: 1.0 - (offset.dy / -400).abs().clamp(0.0, 1.0),
-                  child: Image.asset("assets/money/money_$amount.jpg", width: 140),
+                  child:
+                      Image.asset("assets/money/money_$amount.jpg", width: 140),
                 ),
               );
             },
@@ -161,7 +206,7 @@ void _triggerFlyAnimation(int amount) {
                 flyingMoneyWidgets.removeWhere((w) => w.key == key);
                 currentMoneyGiven += amount;
                 notesOnCounter.add(amount);
-                
+
                 _isAnimating = false; // 4. UNLOCK taps when animation finishes
               });
             },
@@ -186,7 +231,7 @@ void _triggerFlyAnimation(int amount) {
       } else {
         msg = "Please use $level notes";
       }
-      
+
       speak(msg);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(msg, style: const TextStyle(fontSize: 16)),
@@ -197,12 +242,12 @@ void _triggerFlyAnimation(int amount) {
 
     if (currentMoneyGiven < currentPrice) {
       _speakText("Not enough money");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Not enough money!", style: TextStyle(fontSize: 16)), backgroundColor: Colors.red)
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Not enough money!", style: TextStyle(fontSize: 16)),
+          backgroundColor: Colors.red));
       return;
     }
-    
+
     playSound("success.mp3");
     _handleWin(currentMoneyGiven - currentPrice);
   }
@@ -233,7 +278,7 @@ void _triggerFlyAnimation(int amount) {
     _showResult(true, change);
   }
 
-void _showLevelUpDialog() {
+  void _showLevelUpDialog() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -248,22 +293,20 @@ void _showLevelUpDialog() {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  // MATCHING HOME PAGE GRADIENT (Midnight Blue -> Cyan)
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF2E3192), Color(0xFF1BFFFF)], 
-                    begin: Alignment.topLeft, 
-                    end: Alignment.bottomRight
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1BFFFF).withOpacity(0.3),
-                      blurRadius: 30,
-                      spreadRadius: 5
-                    )
-                  ]
-                ),
+                    // MATCHING HOME PAGE GRADIENT (Midnight Blue -> Cyan)
+                    gradient: const LinearGradient(
+                        colors: [Color(0xFF2E3192), Color(0xFF1BFFFF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                        color: Colors.white.withOpacity(0.3), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: const Color(0xFF1BFFFF).withOpacity(0.3),
+                          blurRadius: 30,
+                          spreadRadius: 5)
+                    ]),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -275,7 +318,8 @@ void _showLevelUpDialog() {
                         color: Colors.white.withOpacity(0.15),
                         border: Border.all(color: Colors.white30, width: 1),
                       ),
-                      child: const Icon(Icons.stars_rounded, color: Colors.yellowAccent, size: 60),
+                      child: const Icon(Icons.stars_rounded,
+                          color: Colors.yellowAccent, size: 60),
                     ),
                     const SizedBox(height: 20),
 
@@ -283,24 +327,24 @@ void _showLevelUpDialog() {
                     const Text(
                       "LEVEL UP!",
                       style: TextStyle(
-                        fontSize: 28, 
-                        fontWeight: FontWeight.w900, 
-                        color: Colors.white, 
-                        letterSpacing: 1.5,
-                        shadows: [Shadow(color: Colors.black26, blurRadius: 10)]
-                      ),
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.5,
+                          shadows: [
+                            Shadow(color: Colors.black26, blurRadius: 10)
+                          ]),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10),
-                    
+
                     // 3. SUBTITLE
                     Text(
                       "You reached Level $level!",
                       style: const TextStyle(
-                        fontSize: 18, 
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500
-                      ),
+                          fontSize: 18,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 30),
@@ -315,16 +359,17 @@ void _showLevelUpDialog() {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          foregroundColor: const Color(0xFF2E3192), // Text color matches theme
+                          foregroundColor: const Color(
+                              0xFF2E3192), // Text color matches theme
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
                           elevation: 8,
                           shadowColor: const Color(0xFF1BFFFF).withOpacity(0.5),
                         ),
-                        child: const Text(
-                          "Continue ➔", 
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
-                        ),
+                        child: const Text("Continue ➔",
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],
@@ -375,24 +420,21 @@ void _showLevelUpDialog() {
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF2E3192).withValues(alpha: 0.85), 
-                      const Color.fromARGB(237, 230, 73, 207).withValues(alpha: 1)
-                    ], 
-                    begin: Alignment.topLeft, 
-                    end: Alignment.bottomRight
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color.fromARGB(255, 211, 239, 239).withValues(alpha: 0.2),
-                      blurRadius: 30,
-                      spreadRadius: 5
-                    )
-                  ]
-                ),
+                    gradient: LinearGradient(colors: [
+                      const Color(0xFF2E3192).withValues(alpha: 0.85),
+                      const Color.fromARGB(237, 230, 73, 207)
+                          .withValues(alpha: 1)
+                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.3), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                          color: const Color.fromARGB(255, 211, 239, 239)
+                              .withValues(alpha: 0.2),
+                          blurRadius: 30,
+                          spreadRadius: 5)
+                    ]),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -400,26 +442,37 @@ void _showLevelUpDialog() {
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
-                        color: Colors.white, 
+                        color: Colors.white,
                       ),
-                      child: const Icon(Icons.check_circle_rounded, color: Color.fromARGB(255, 55, 208, 12), size: 60),
+                      child: const Icon(Icons.check_circle_rounded,
+                          color: Color.fromARGB(255, 55, 208, 12), size: 60),
                     ),
                     const SizedBox(height: 15),
                     Text(
                       titleText,
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: Colors.white, letterSpacing: 1.0),
+                      style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                          letterSpacing: 1.0),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 5),
                     Text(
                       scoreText,
-                      style: const TextStyle(fontSize: 20, color: Colors.yellowAccent, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.yellowAccent,
+                          fontWeight: FontWeight.bold),
                     ),
                     const Divider(color: Colors.white30, height: 30),
                     if (change > 0) ...[
                       Text(
                         collectChangeText,
-                        style: const TextStyle(fontSize: 18, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 15),
                       SingleChildScrollView(
@@ -428,15 +481,20 @@ void _showLevelUpDialog() {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: changeNotes.map((note) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 6.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 6.0),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.white, width: 2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  boxShadow: [
-                                    BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))
-                                  ]
-                                ),
+                                    border: Border.all(
+                                        color: Colors.white, width: 2),
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black
+                                              .withValues(alpha: 0.3),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 5))
+                                    ]),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(6),
                                   child: Image.asset(
@@ -454,7 +512,10 @@ void _showLevelUpDialog() {
                     ] else ...[
                       Text(
                         exactAmountText,
-                        style: const TextStyle(color: Colors.white70, fontStyle: FontStyle.italic, fontSize: 16),
+                        style: const TextStyle(
+                            color: Colors.white70,
+                            fontStyle: FontStyle.italic,
+                            fontSize: 16),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
@@ -470,13 +531,13 @@ void _showLevelUpDialog() {
                           backgroundColor: Colors.white,
                           foregroundColor: const Color(0xFF2E3192),
                           padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
                           elevation: 5,
                         ),
-                        child: Text(
-                          nextBtnText, 
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
-                        ),
+                        child: Text(nextBtnText,
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
                       ),
                     )
                   ],
@@ -490,12 +551,17 @@ void _showLevelUpDialog() {
   }
 
   void _resetCurrentRound() {
-    setState(() { currentMoneyGiven = 0; notesOnCounter.clear(); });
+    setState(() {
+      currentMoneyGiven = 0;
+      notesOnCounter.clear();
+    });
   }
 
+// Greedy algorithm to calculate the minimum combination of Rupee notes for exact return change.
   List<int> _getChangeNotes(int amount) {
     List<int> changeNotes = [];
-    List<int> sortedNotes = List.from(availableNotes)..sort((a, b) => b.compareTo(a));
+    List<int> sortedNotes = List.from(availableNotes)
+      ..sort((a, b) => b.compareTo(a));
     for (int note in sortedNotes) {
       if (amount >= note) {
         int count = amount ~/ note;
@@ -511,9 +577,11 @@ void _showLevelUpDialog() {
     if (currentLanguage == 'en-US') {
       textToSpeak = "${currentProduct['name']} costs $currentPrice";
     } else if (currentLanguage == 'hi-IN') {
-      textToSpeak = "${currentProduct['name_hi']} की कीमत $currentPrice रुपये है";
+      textToSpeak =
+          "${currentProduct['name_hi']} की कीमत $currentPrice रुपये है";
     } else if (currentLanguage == 'ne-NP') {
-      textToSpeak = "${currentProduct['name_ne']} को मूल्य $currentPrice रुपैयाँ हो";
+      textToSpeak =
+          "${currentProduct['name_ne']} को मूल्य $currentPrice रुपैयाँ हो";
     }
     speak(textToSpeak);
   }
@@ -522,13 +590,19 @@ void _showLevelUpDialog() {
     String text = "";
     if (correct) {
       if (change > 0) {
-        if (currentLanguage == 'en-US') text = "Take $change change.";
-        else if (currentLanguage == 'hi-IN') text = "$change रुपये वापस लो।";
-        else text = "$change फिर्ता लिनुहोस्।";
+        if (currentLanguage == 'en-US')
+          text = "Take $change change.";
+        else if (currentLanguage == 'hi-IN')
+          text = "$change रुपये वापस लो।";
+        else
+          text = "$change फिर्ता लिनुहोस्।";
       } else {
-        if (currentLanguage == 'en-US') text = "Perfect!";
-        else if (currentLanguage == 'hi-IN') text = "बिल्कुल सही!";
-        else text = "एकदम सही!";
+        if (currentLanguage == 'en-US')
+          text = "Perfect!";
+        else if (currentLanguage == 'hi-IN')
+          text = "बिल्कुल सही!";
+        else
+          text = "एकदम सही!";
       }
     }
     speak(text);
@@ -536,9 +610,12 @@ void _showLevelUpDialog() {
 
   void _cycleLanguage() {
     setState(() {
-      if (currentLanguage == "en-US") currentLanguage = "hi-IN";
-      else if (currentLanguage == "hi-IN") currentLanguage = "ne-NP";
-      else currentLanguage = "en-US";
+      if (currentLanguage == "en-US")
+        currentLanguage = "hi-IN";
+      else if (currentLanguage == "hi-IN")
+        currentLanguage = "ne-NP";
+      else
+        currentLanguage = "en-US";
     });
     _speakPrice();
   }
@@ -552,18 +629,19 @@ void _showLevelUpDialog() {
         elevation: 0,
         title: Row(
           children: [
-            
             // LEVEL
             PopupMenuButton<int>(
               onSelected: _changeLevel,
               itemBuilder: (context) => [
                 const PopupMenuItem(value: 1, child: Text("Level 1 (Basic)")),
-                const PopupMenuItem(value: 2, child: Text("Level 2 (Advanced)")),
+                const PopupMenuItem(
+                    value: 2, child: Text("Level 2 (Advanced)")),
                 const PopupMenuItem(value: 3, child: Text("Level 3 (Pro)")),
               ],
               child: Container(
                 margin: const EdgeInsets.only(right: 10),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 193, 5, 180),
                   borderRadius: BorderRadius.circular(20),
@@ -573,7 +651,9 @@ void _showLevelUpDialog() {
                   children: [
                     Text("Level $level",
                         style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20,color: Colors.white)),
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white)),
                     const Icon(Icons.arrow_drop_down,
                         color: Colors.white, size: 20)
                   ],
@@ -586,14 +666,16 @@ void _showLevelUpDialog() {
               decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 0, 0),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.white,width: 2)),
+                  border: Border.all(color: Colors.white, width: 2)),
               child: Row(
                 children: [
                   const Icon(Icons.star, color: Colors.white, size: 20),
                   const SizedBox(width: 22),
                   Text("$score",
                       style: const TextStyle(
-                          fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 18)),
                 ],
               ),
             )
@@ -608,7 +690,8 @@ void _showLevelUpDialog() {
                 onTap: _cycleLanguage,
                 borderRadius: BorderRadius.circular(30),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(30),
@@ -657,18 +740,20 @@ void _showLevelUpDialog() {
                           child: GestureDetector(
                             onTap: () {
                               // 1. Play a small tap sound for feedback
-                              playSound("tap.mp3"); 
+                              playSound("tap.mp3");
                               // 2. Call the existing function to re-speak price
-                              _speakPrice(); 
+                              _speakPrice();
                             },
                             child: Container(
                               constraints: const BoxConstraints(maxWidth: 310),
-                              margin: const EdgeInsets.symmetric(horizontal: 20),
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
                                   color: Colors.white.withValues(alpha: 0.25),
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.4),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.4),
                                       width: 1.5),
                                   boxShadow: [
                                     const BoxShadow(
@@ -849,8 +934,8 @@ void _showLevelUpDialog() {
                             padding: const EdgeInsets.symmetric(horizontal: 10),
                             children: availableNotes.map((amount) {
                               return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 12.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0),
                                 child: GestureDetector(
                                   onTap: () => _triggerFlyAnimation(amount),
                                   child: Center(

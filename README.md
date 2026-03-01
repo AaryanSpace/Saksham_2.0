@@ -9,7 +9,7 @@ With full voice support in English, Hindi, and Nepali, Saksham ensures that lang
 ## ✨ Key Features
 
 * **Money Magic:** Practice identifying and counting Nepali currency notes.
-* **Market Mission:** A simulated shopping experience to practice buying and paying.
+* **Market Mission:** A simulated shopping experience to practice buying and paying. Added a 3-level checkout simulation with dynamic visual change calculation and smart error handling to help users practice real-world transactions safely."
 * **Number Fun:** Interactive math and counting games (Math Ninja).
 * **Multilingual Support:** Full voice-over guidance in English, Hindi, and Nepali.
 

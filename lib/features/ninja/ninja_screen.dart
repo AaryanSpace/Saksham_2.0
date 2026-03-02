@@ -189,25 +189,39 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
   }
 
   // --- CANDY CRUSH ANIMATION TRIGGER ---
-  void _triggerWinFeedback() {
-    List<String> words;
-    if (currentLanguage == 'hi-IN') {
-      words = ["बहुत बढ़िया!", "शानदार!", "सही जवाब!"];
-    } else if (currentLanguage == 'ne-NP') {
-      words = ["धेरै राम्रो!", "बबाल!", "सही हो!"];
-    } else {
-      words = ["Awesome!", "Perfect!", "Great Job!"];
-    }
-    
-    setState(() {
-      _feedbackText = words[_random.nextInt(words.length)];
-      _feedbackColor = [Colors.yellowAccent, Colors.greenAccent, Colors.cyanAccent, Colors.orangeAccent][_random.nextInt(4)];
-    });
-    
-    _feedbackController.reset();
-    _feedbackController.forward();
+void _triggerWinFeedback() {
+  List<String> words;
+
+  if (currentLanguage == 'hi-IN') {
+    words = ["बहुत बढ़िया!", "शानदार!", "सही जवाब!"];
+  } else if (currentLanguage == 'ne-NP') {
+    words = ["धेरै राम्रो!", "बबाल!", "सही हो!"];
+  } else {
+    words = ["Awesome!", "Perfect!", "Great Job!"];
   }
 
+  final selectedWord = words[_random.nextInt(words.length)];
+
+  setState(() {
+    _feedbackText = selectedWord;
+    _feedbackColor = [
+      Colors.yellowAccent,
+      Colors.greenAccent,
+      Colors.cyanAccent,
+      Colors.orangeAccent
+    ][_random.nextInt(4)];
+  });
+  
+  Future.delayed(const Duration(milliseconds: 150), () {
+  speak(selectedWord);
+});
+
+  // 🎤 SPEAK THE FEEDBACK
+  speak(selectedWord);
+
+  _feedbackController.reset();
+  _feedbackController.forward();
+}
   void _handleTap(GameItem item) {
     if (item.isCorrect) {
       // 1. SUCCESS LOGIC

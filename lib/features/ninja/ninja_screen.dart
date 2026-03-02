@@ -63,7 +63,11 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
   void _startNewRound() {
     setState(() {
       _items.clear();
-      // 30% Money, 70% Math
+    });
+
+    // Delay speech slightly so UI settles
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
       if (_random.nextDouble() < 0.3) {
         _setupMoneyRound();
       } else {
@@ -92,15 +96,12 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
 
       // --- NATURAL SPEECH GENERATION ---
       if (currentLanguage == 'hi-IN') {
-        // "10 mein 5 jodne par kya aayega?"
         speakText = "$aLoc में $bLoc जोड़ने पर क्या आएगा?"; 
       } else if (currentLanguage == 'ne-NP') {
-        // "10 ma 5 jodda natija ke huncha?"
         speakText = "$aLoc मा $bLoc जोड्दा नतिजा के हुन्छ?";
       } else {
         speakText = "$a plus $b equals what?";
       }
-
     } else {
       // Subtraction: Ensure result is positive
       if (a < b) { int temp = a; a = b; b = temp; aLoc = getLocalizedNumber(a); bLoc = getLocalizedNumber(b); }
@@ -111,10 +112,8 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
 
       // --- NATURAL SPEECH GENERATION ---
       if (currentLanguage == 'hi-IN') {
-        // "10 mein se 5 ghatane par kya aayega?"
         speakText = "$aLoc में से $bLoc घटाने पर क्या आएगा?";
       } else if (currentLanguage == 'ne-NP') {
-        // "10 bata 5 ghatauda natija ke huncha?"
         speakText = "$aLoc बाट $bLoc घटाउँदा नतिजा के हुन्छ?";
       } else {
         speakText = "$a minus $b equals what?";
@@ -135,7 +134,7 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
 
     if (currentLanguage == "hi-IN") {
        _questionText = "₹$valStr का नोट";
-       speakText = "$valStr रुपये का नोट ढूँढें"; // Using Devanagari numbers ensures "Das" not "One Zero"
+       speakText = "$valStr रुपये का नोट ढूँढें"; 
     } else if (currentLanguage == "ne-NP") {
        _questionText = "₹$valStr को नोट";
        speakText = "$valStr रुपैयाँको नोट खोज्नुहोस्";
@@ -171,7 +170,7 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         value: value,
         x: _random.nextDouble() * 0.8 + 0.1,
-        y: 1.1,
+        y: 1.1, // Starts at bottom
         speed: _random.nextDouble() * 0.005 + 0.005,
         isCorrect: isCorrect,
         isMoney: _isMoneyRound,
@@ -182,58 +181,64 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
   void _updateItems() {
     setState(() {
       for (var item in _items) {
-        item.y -= item.speed;
+        item.y -= item.speed; // Floats upwards
       }
-      _items.removeWhere((item) => item.y < -0.2);
+      _items.removeWhere((item) => item.y < -0.2); // Removes when it goes off top screen
     });
   }
 
   // --- CANDY CRUSH ANIMATION TRIGGER ---
-void _triggerWinFeedback() {
-  List<String> words;
+  void _triggerWinFeedback() {
+    List<String> words;
 
-  if (currentLanguage == 'hi-IN') {
-    words = ["बहुत बढ़िया!", "शानदार!", "सही जवाब!"];
-  } else if (currentLanguage == 'ne-NP') {
-    words = ["धेरै राम्रो!", "बबाल!", "सही हो!"];
-  } else {
-    words = ["Awesome!", "Perfect!", "Great Job!"];
+    if (currentLanguage == 'hi-IN') {
+      words = ["बहुत बढ़िया!", "शानदार!", "सही जवाब!"];
+    } else if (currentLanguage == 'ne-NP') {
+      words = ["धेरै राम्रो!", "बबाल!", "सही हो!"];
+    } else {
+      words = ["Awesome!", "Perfect!", "Great Job!"];
+    }
+
+    final selectedWord = words[_random.nextInt(words.length)];
+
+    setState(() {
+      _feedbackText = selectedWord;
+      _feedbackColor = [
+        Colors.yellowAccent,
+        Colors.greenAccent,
+        Colors.cyanAccent,
+        Colors.orangeAccent
+      ][_random.nextInt(4)];
+    });
+
+    // 🎤 SPEAK THE FEEDBACK (Only called ONCE with a tiny delay so it doesn't overlap the ping sound)
+    Future.delayed(const Duration(milliseconds: 100), () {
+      speak(selectedWord);
+    });
+
+    _feedbackController.reset();
+    _feedbackController.forward();
   }
 
-  final selectedWord = words[_random.nextInt(words.length)];
-
-  setState(() {
-    _feedbackText = selectedWord;
-    _feedbackColor = [
-      Colors.yellowAccent,
-      Colors.greenAccent,
-      Colors.cyanAccent,
-      Colors.orangeAccent
-    ][_random.nextInt(4)];
-  });
-  
-  Future.delayed(const Duration(milliseconds: 150), () {
-  speak(selectedWord);
-});
-
-  // 🎤 SPEAK THE FEEDBACK
-  speak(selectedWord);
-
-  _feedbackController.reset();
-  _feedbackController.forward();
-}
   void _handleTap(GameItem item) {
     if (item.isCorrect) {
       // 1. SUCCESS LOGIC
       playSound("success.mp3");
       PlayerStats.addXP(10);
-      _triggerWinFeedback(); // Show the big text!
-      
+      _triggerWinFeedback(); // Show the big text and cheer!
+
       setState(() {
         _score += 10;
         _items.remove(item);
       });
-      _startNewRound();
+
+      // Give enough time (1.2 seconds) for the cheering TTS to finish before starting a new round
+      Future.delayed(const Duration(milliseconds: 1200), () {
+        if (mounted) {
+          _startNewRound();
+        }
+      });
+      
     } else {
       // 2. WRONG ANSWER LOGIC
       playSound("tap.mp3");
@@ -258,20 +263,19 @@ void _triggerWinFeedback() {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        // 1. MOVED SCORE TO LEFT (centerTitle: false)
         centerTitle: false, 
-        titleSpacing: 0, // Removes extra gap between back arrow and score
+        titleSpacing: 0, 
         
         // --- SCORE CONTAINER ---
         title: Container(
-          margin: const EdgeInsets.only(left: 0), // Little space from arrow
+          margin: const EdgeInsets.only(left: 0), 
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.green.shade700, 
@@ -312,7 +316,6 @@ appBar: AppBar(
                 child: GestureDetector(
                   onTap: () => _handleTap(item),
                   child: item.isMoney
-                    // Money Image (No Container)
                     ? SizedBox(
                         height: 260,
                         child: Image.asset(
@@ -320,7 +323,6 @@ appBar: AppBar(
                           fit: BoxFit.contain,
                         ),
                       )
-                    // Number Bubble
                     : Container(
                         width: 95,
                         height: 95,
@@ -343,24 +345,22 @@ appBar: AppBar(
               );
             }).toList(),
 
-// 2. QUESTION CARD (MOVED TO TOP & CONSTANT STYLE)
+            // 2. QUESTION CARD (MOVED TO TOP)
             Align(
-              alignment: Alignment.topCenter, // <--- 1. MOVED TO TOP
+              alignment: Alignment.topCenter,
               child: Container(
-                // 2. Adjust margins to sit nicely below the AppBar (Score/Back button)
                 margin: const EdgeInsets.only(top: 0, left: 14, right: 14), 
-                height: 130, // <--- 3. FIXED HEIGHT (Constant size)
-                width: double.infinity, // Fills width minus margins
+                height: 130, 
+                width: double.infinity, 
                 child: GlassCard(
                   child: Column(  
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // THE QUESTION TEXT (e.g., "2 + 2 = ?")
                       Text(
                         _questionText,
                         style: const TextStyle(
                           fontSize: 36, 
-                          fontWeight: FontWeight.w900, // Extra Bold
+                          fontWeight: FontWeight.w900, 
                           color: Colors.white,
                           letterSpacing: 1.2
                         ),
@@ -368,25 +368,22 @@ appBar: AppBar(
                       
                       const SizedBox(height: 5),
                       
-                      // THE HINT BOX (Black Pill Shape)
-                      // Now applies to BOTH Math and Money rounds for consistency
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.3), // Dark transparent bg
-                          borderRadius: BorderRadius.circular(30), // Rounded pill shape
+                          color: Colors.black.withValues(alpha: 0.3), 
+                          borderRadius: BorderRadius.circular(30), 
                           border: Border.all(color: Colors.white24, width: 1),
                         ),
                         child: Text(
-                          // Show Dots if math, "Tap Note" if money
                           _isMoneyRound 
                               ? (currentLanguage == "en-US" ? "Tap the note!" : (currentLanguage == "hi-IN" ? "नोट दबाएं!" : "नोट थिच्नुहोस्!"))
                               : _visualHint,
                           style: TextStyle(
-                            fontSize: _isMoneyRound ? 18 : 24, // Text size adjustment
+                            fontSize: _isMoneyRound ? 18 : 24,
                             color: _isMoneyRound ? Colors.white70 : AppTheme.accentYellow,
                             fontWeight: FontWeight.bold,
-                            letterSpacing: _isMoneyRound ? 1 : 10, // Spacing for dots
+                            letterSpacing: _isMoneyRound ? 1 : 10,
                           ),
                         ),
                       ),

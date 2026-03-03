@@ -29,8 +29,8 @@ decoration: BoxDecoration(
                 // --- USE YOUR APP THEME GRADIENT HERE ---
                 gradient: const LinearGradient(
                   colors: [
-                    Color(0xFF2E3192), // Dark Blue (Your App's Main Color)
-                    Color(0xFF1BFFFF), // Cyan (Your App's Accent)
+                    Colors.purpleAccent, 
+                    Color.fromARGB(255, 154, 0, 134),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -113,7 +113,7 @@ decoration: BoxDecoration(
                         child: ElevatedButton(
                           onPressed: () => Navigator.pop(context, true),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(255, 121, 247, 3),
+                            backgroundColor: const Color(0xFF1BFFFF), // Cyan (Your App's Accent)
                             foregroundColor: const Color(0xFF003300), // Dark Green Text
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),

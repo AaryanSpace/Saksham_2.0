@@ -104,7 +104,8 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
       }
     } else {
       // Subtraction: Ensure result is positive
-      if (a < b) { int temp = a; a = b; b = temp; aLoc = getLocalizedNumber(a); bLoc = getLocalizedNumber(b); }
+      if (a < b) { int temp = a; a = b; b = temp; 
+      aLoc = getLocalizedNumber(a); bLoc = getLocalizedNumber(b); }
       
       _correctAnswer = a - b;
       _questionText = "$aLoc - $bLoc = ?";
@@ -164,7 +165,7 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
         if (value == _correctAnswer) value = value + 1;
       }
     }
-
+    // Random values setup
     setState(() {
       _items.add(GameItem(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -210,8 +211,8 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
         Colors.orangeAccent
       ][_random.nextInt(4)];
     });
-
-    // 🎤 SPEAK THE FEEDBACK (Only called ONCE with a tiny delay so it doesn't overlap the ping sound)
+    // 🎤 SPEAK THE FEEDBACK 
+    //(Only called ONCE with a tiny delay so it doesn't overlap the ping sound)
     Future.delayed(const Duration(milliseconds: 100), () {
       speak(selectedWord);
     });

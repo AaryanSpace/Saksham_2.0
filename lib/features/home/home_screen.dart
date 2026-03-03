@@ -7,10 +7,10 @@ import '../../core/widgets/language_button.dart';
 import '../../core/widgets/dialog_helper.dart'; // Add this import for showEntryDialog
 
 // Import feature screens
-import '../counting/counting_screen.dart';
-import '../money/money_screen.dart';
-import '../grocery_game/grocery_game_screen.dart';
-import '../travel/travel_screen.dart';
+import '../number_fun/counting_screen.dart';
+import '../money_magic/money_screen.dart';
+import '../market_mission/grocery_game_screen.dart';
+import '../game_zone/game_zone_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -110,8 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   childAspectRatio: 1.0, // Make cards slightly taller for sub-text
                   children: [
                    
-                  
-                   
                    
                     // CARD 1: COUNTING
                     _buildHomeCard(
@@ -160,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       String question = currentLanguage == "hi-IN" ? "क्या आप गेम खेलना चाहते हैं?" : currentLanguage == "ne-NP" ? "के तपाईं खेल खेल्न चाहनुहुन्छ?" : "Do you want to play a game?";
                       speak(question);
                       // Navigate to the NEW Game Selection Screen (TravelScreen will now be a menu)
-                      showEntryDialog(context, "Game Zone", question, const TravelScreen());
+                      showEntryDialog(context, "Game Zone", question, const GameZoneScreen());
                     }),
                   ],
                 ),

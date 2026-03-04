@@ -30,9 +30,20 @@ class _BalloonSortScreenState extends State<BalloonSortScreen> with TickerProvid
   // toh jab tak naya round shuru na ho, wo doosre balloons par tap na kar sake
   bool _isTransitioning = false; 
 
+  // 🔥 NAYA: Feedback Animation Variables
+  late AnimationController _feedbackController;
+  late Animation<double> _feedbackScaleAnimation;
+  String _feedbackText = "";
+  Color _feedbackColor = Colors.white;
+
   @override
   void initState() {
     super.initState();
+    
+    // 🔥 NAYA: Candy Crush style pop-up ke liye Animation Controller setup
+    _feedbackController = AnimationController(vsync: this, duration: const Duration(milliseconds: 800));
+    _feedbackScaleAnimation = CurvedAnimation(parent: _feedbackController, curve: Curves.elasticOut);
+
     _startNewRound(); // Screen khulte hi pehla round start karna
     
     // GAME ENGINE LOOP: Har 50 milliseconds mein screen update hogi (Smooth floating effect ke liye)
@@ -41,6 +52,7 @@ class _BalloonSortScreenState extends State<BalloonSortScreen> with TickerProvid
 
   @override
   void dispose() {
+    _feedbackController.dispose(); // 🔥 NAYA: Animation clean up
     _loopTimer?.cancel(); // Screen band hone par timer ko band karna zaroori hai (memory leak bachane ke liye)
     super.dispose();
   }
@@ -115,34 +127,34 @@ class _BalloonSortScreenState extends State<BalloonSortScreen> with TickerProvid
 
   // --- TAP (CLICK) LOGIC ---
   void _handleTap(BalloonItem tappedBalloon) {
-    // Agar game dusre round mein ja raha hai ya balloon pehle hi phat chuka hai, toh kuch mat karo
     if (tappedBalloon.state != BalloonState.normal || _isTransitioning) return; 
 
     if (tappedBalloon.number == _targetNumber) {
-      // ✅ SAHI JAWAB (CORRECT ANSWER)
-      playSound("success.mp3"); // Khushi wali aawaz
-      PlayerStats.addXP(15); // XP points badhao
+      // ✅ CORRECT ANSWER
+      playSound("success.mp3");
+      _triggerWinVoice(); // 🔥 NAYA: Khushi wali aawaz bolega aur animation chalayega!
+      PlayerStats.addXP(15);
       
       setState(() {
-        _isTransitioning = true; // Baaki balloons par tap block kar do
-        _score += 10; // Score badhao
-        tappedBalloon.state = BalloonState.smiling; // Emoji ko smile me badal do
-        tappedBalloon.speed = 0.04; // Sahi balloon ko rocket ki tarah tezi se upar uda do
+        _isTransitioning = true; 
+        _score += 10;
+        tappedBalloon.state = BalloonState.smiling;
+        tappedBalloon.speed = 0.04; 
       });
 
-      // 1.5 second baad naya round start karo (Animation khatam hone ka wait)
       Future.delayed(const Duration(milliseconds: 1500), () {
         if (mounted) _startNewRound();
       });
 
     } else {
-      // ❌ GALAT JAWAB (WRONG ANSWER)
-      playSound("tap.mp3"); // Balloon phatne ki aawaz (Pop sound)
+      // ❌ WRONG ANSWER
+      playSound("tap.mp3"); 
+      _triggerWrongVoice(); // 🔥 NAYA: Oops wali aawaz bolega aur animation chalayega!
+      
       setState(() {
-        tappedBalloon.state = BalloonState.popped; // Emoji ko phate hue blast me badlo
+        tappedBalloon.state = BalloonState.popped;
       });
 
-      // 400 milliseconds baad us phate hue balloon ko screen se hata do
       Future.delayed(const Duration(milliseconds: 400), () {
         if (mounted) {
           setState(() {
@@ -230,12 +242,72 @@ class _BalloonSortScreenState extends State<BalloonSortScreen> with TickerProvid
                 ),
               ),
             ),
+
+            // 🔥 NAYA: CANDY CRUSH STYLE POP-UP ANIMATION
+            Center(
+              child: IgnorePointer( // Isse taps block nahi honge
+                child: ScaleTransition(
+                  scale: _feedbackScaleAnimation,
+                  child: FadeTransition(
+                    opacity: _feedbackController.drive(Tween(begin: 3.0, end: 0.0)),
+                    child: Text(
+                      _feedbackText,
+                      style: TextStyle(
+                        fontSize: 60,
+                        fontWeight: FontWeight.w900,
+                        color: _feedbackColor,
+                        shadows: const [Shadow(color: Colors.black, offset: Offset(3, 3), blurRadius: 5)],
+                        fontStyle: FontStyle.italic,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
+  // --- VOICE FEEDBACK LOGIC ---
+  void _triggerWinVoice() {
+    List<String> words = ["Awesome!", "Perfect!", "Great Job!"];
+    if (currentLanguage == 'hi-IN') words = ["शानदार!", "बिल्कुल सही!", "बहुत बढ़िया!"];
+    if (currentLanguage == 'ne-NP') words = ["सही जवाफ!", "धेरै राम्रो!", "बबाल!"];
+
+    final selectedWord = words[_random.nextInt(words.length)];
+    
+    // 🔥 NAYA: Text aur color update karo pop-up ke liye
+    setState(() {
+      _feedbackText = selectedWord;
+      _feedbackColor = Colors.greenAccent;
+    });
+
+    speak(selectedWord);
+    _feedbackController.reset();
+    _feedbackController.forward(); // Animation trigger
+  }
+
+  void _triggerWrongVoice() {
+    List<String> words = ["Oops! Try again", "Not quite", "Watch out!"];
+    if (currentLanguage == 'hi-IN') words = ["ओह! गलत गुब्बारा", "फिर कोशिश करें!"];
+    if (currentLanguage == 'ne-NP') words = ["ओहो! गलत बेलुन", "फेरी प्रयास गर्नुहोस्!"];
+
+    final selectedWord = words[_random.nextInt(words.length)];
+    
+    // 🔥 NAYA: Text aur color update karo pop-up ke liye
+    setState(() {
+      _feedbackText = selectedWord;
+      _feedbackColor = Colors.redAccent;
+    });
+
+    speak(selectedWord);
+    _feedbackController.reset();
+    _feedbackController.forward(); // Animation trigger
+  }
+  
   // --- BALLOON UI WIDGET ---
   // Ye function decide karta hai ki balloon kaisa dikhega (Sahi hone par, Galat hone par, ya Normal halat mein)
   Widget _buildBalloonWidget(BalloonItem balloon) {

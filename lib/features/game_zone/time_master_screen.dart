@@ -57,18 +57,18 @@ class _TimeMasterScreenState extends State<TimeMasterScreen> with TickerProvider
 
     _speakTargetTime();
   }
-
+  //Natural Time TTS
   void _speakTargetTime() {
     String minStr = _targetMinute == 0 ? "o'clock" : _targetMinute.toString();
     String speakText = "";
-
+      // Hindi TTS logic to sound natural
     if (currentLanguage == 'hi-IN') {
       if (_targetMinute == 0) speakText = "$_targetHour बजाइए";
       else if (_targetMinute == 15) speakText = "सवा $_targetHour बजाइए";
       else if (_targetMinute == 30) speakText = "साढ़े $_targetHour बजाइए";
       else if (_targetMinute == 45) speakText = "पौने ${_targetHour == 12 ? 1 : _targetHour + 1} बजाइए";
     } else if (currentLanguage == 'ne-NP') {
-      // FIX: Corrected Nepali TTS logic to sound natural
+      // Nepali TTS logic to sound natural
       if (_targetMinute == 0) speakText = "$_targetHour बजाउनुहोस्";
       else if (_targetMinute == 15) speakText = "सवा $_targetHour बजाउनुहोस्";
       else if (_targetMinute == 30) speakText = "साढे $_targetHour बजाउनुहोस्";

@@ -3,11 +3,13 @@ import '../../core/widgets/background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/language_button.dart';
 
-// Import your 4 separate game files here
-import 'drive_and_learn_screen.dart';
+// Import your separate game files here
+//import 'drive_and_learn_screen.dart'
 import 'ninja_screen.dart';
-import 'balloon_sort_screen.dart';
 import 'time_master_screen.dart';
+import 'balloon_sort_screen.dart';
+//import 'inn future.dart';
+import 'math_balance_screen.dart'; // Naya game screen import kiya hai
 
 class GameZoneScreen extends StatefulWidget {
   const GameZoneScreen({super.key});
@@ -34,14 +36,14 @@ class _GameZoneScreenState extends State<GameZoneScreen> {
       body: BackgroundWrapper(
         child: Column(
           children: [
-            const SizedBox(height: 100), // Space for AppBar
+            const SizedBox(height: 30), // Space for AppBar
             const Text(
               "Choose a Game",
               style: TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 30),
             
-            // THE 4-GAME GRID
+            // THE 5-GAME GRID
             Expanded(
               child: GridView.count(
                 padding: const EdgeInsets.all(20),
@@ -51,12 +53,12 @@ class _GameZoneScreenState extends State<GameZoneScreen> {
                 childAspectRatio: 1.0, // Perfect Squares
                 children: [
                   // CARD 1: DRIVE & LEARN
-                  _buildSquareGameCard(
-                    "Drive & Learn",
-                    Icons.directions_car_filled_rounded,
-                    Colors.orangeAccent,
-                    () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DriveAndLearnScreen())),
-                  ),
+                  // _buildSquareGameCard(
+                  //   "Drive & Learn",
+                  //   Icons.directions_car_filled_rounded,
+                  //   Colors.orangeAccent,
+                  //   () => Navigator.push(context, MaterialPageRoute(builder: (context) => const DriveAndLearnScreen())),
+                  // ),
                   
                   // CARD 2: MATH NINJA
                   _buildSquareGameCard(
@@ -80,6 +82,14 @@ class _GameZoneScreenState extends State<GameZoneScreen> {
                     Icons.access_time_filled_rounded,
                     Colors.cyanAccent,
                     () => Navigator.push(context, MaterialPageRoute(builder: (context) => const TimeMasterScreen())),
+                  ),
+
+                  // 🔥 CARD 5: MATH BALANCE (NAYA ADD KIYA HAI) 🔥
+                  _buildSquareGameCard(
+                    "Math Balance",
+                    Icons.balance_rounded, // Taraazu ka icon
+                    Colors.greenAccent,
+                    () => Navigator.push(context, MaterialPageRoute(builder: (context) => const MathBalanceScreen())),
                   ),
                 ],
               ),

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 
+// Core imports
 import '../../core/constants/app_theme.dart';
 import '../../core/utils/globals.dart';
 import '../../core/widgets/background_wrapper.dart';
@@ -16,63 +17,70 @@ class DriveAndLearnScreen extends StatefulWidget {
 }
 
 class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerProviderStateMixin {
-  int _score = 0;
-  int _targetNumber = 50;
-  double _currentPosition = 0.0; // 0 to 100 scale
-  bool _isDriving = false;
-  bool _hasAnswered = false;
+  // --- VARIABLES ---
+  int _score = 0; // User ka current score
+  int _targetNumber = 50; // Wo number jahan user ko gaadi rokni hai
+  double _currentPosition = 0.0; // Gaadi ki current position (0 se 100 ke scale par)
+  bool _isDriving = false; // Kya user ne pedal daba rakha hai?
+  bool _hasAnswered = false; // Kya user gaadi rok chuka hai?
   
-  // VEHICLE GARAGE LOGIC
+  // VEHICLE GARAGE LOGIC (Gaadiyon ka collection)
+  // Emojis default left face karte hain, hum aage inko code me rotate (90 deg) karenge taaki upar dekhein
   List<String> _vehicles = ['🚗', '🚌', '🚛', '🏍️'];
-  int _selectedVehicleIndex = 0;
+  int _selectedVehicleIndex = 0; // Default car selected hai
 
-  Timer? _driveTimer;
-  final Random _random = Random();
+  Timer? _driveTimer; // Gaadi chalane wala timer engine
+  final Random _random = Random(); // Random target generate karne ke liye
 
+  // Feedback UI variables
   String _feedbackText = "";
   Color _feedbackColor = Colors.white;
 
   @override
   void initState() {
     super.initState();
-    _startNewRound();
+    _startNewRound(); // Screen open hote hi pehla round start
   }
 
   @override
   void dispose() {
-    _driveTimer?.cancel();
+    _driveTimer?.cancel(); // Memory leak se bachne ke liye timer ko cancel karna zaroori hai
     super.dispose();
   }
 
+  // --- NEW ROUND LOGIC ---
   void _startNewRound() {
     setState(() {
-      _hasAnswered = false;
-      _currentPosition = 0.0;
+      _hasAnswered = false; // Round reset
+      _currentPosition = 0.0; // Gaadi wapas 0 (bottom) par aa jayegi
       _feedbackText = "";
       
-      // Generate a random target between 10 and 95 (avoiding extreme edges)
+      // Random target generate karo 10 aur 95 ke beech mein
       _targetNumber = 10 + _random.nextInt(86); 
     });
-    _speakTarget();
+    _speakTarget(); // Target ko aawaz mein bolo
   }
 
   void _speakTarget() {
     String text = "Drive to $_targetNumber";
     if (currentLanguage == 'hi-IN') text = "$_targetNumber तक गाड़ी चलाएं";
     if (currentLanguage == 'ne-NP') text = "$_targetNumber सम्म गाडी चलाउनुहोस्";
-    speak(text);
+    speak(text); // Text-to-speech
   }
 
-  // ACCELERATOR LOGIC (Pedal dabane par gaadi chalegi)
+  // --- ACCELERATOR LOGIC (PEDAL PRESS) ---
   void _startDriving() {
-    if (_hasAnswered) return;
-    playSound("tap.mp3"); // Replace with engine.mp3 if you have one!
+    if (_hasAnswered) return; // Agar round khatam ho gaya to gaadi mat chalao
+    playSound("tap.mp3"); // Engine start sound
     setState(() => _isDriving = true);
     
+    // Har 30 milliseconds mein gaadi aage (upar) badhegi
     _driveTimer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {
-        // Speed of the vehicle
-        _currentPosition += 0.8; 
+        // SPEED SETTING: Yahan 0.4 hai. Isey bada kar gaadi fast aur chhota kar slow kar sakte hain.
+        _currentPosition += 0.4; 
+        
+        // Agar gaadi 100 (Top) par pahunch jaye toh automatically rok do
         if (_currentPosition >= 100) {
           _currentPosition = 100;
           _stopDriving();
@@ -81,24 +89,24 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
     });
   }
 
-  // BREAK LOGIC (Pedal chhodne par gaadi rukegi aur check hoga)
+  // --- BRAKE LOGIC (PEDAL RELEASE) ---
   void _stopDriving() {
     if (!_isDriving || _hasAnswered) return;
-    _driveTimer?.cancel();
+    _driveTimer?.cancel(); // Timer (Engine) band
     setState(() {
       _isDriving = false;
-      _hasAnswered = true;
+      _hasAnswered = true; // User ne apna turn le liya
     });
-    _checkParking();
+    _checkParking(); // Ab check karo sahi jagah ruki ya nahi
   }
 
+  // --- CHECK WIN/LOSS LOGIC ---
   void _checkParking() {
-    // Dyscalculia ke liye hum thodi chhoot (margin of error) denge
-    // Agar target 45 hai, aur user ne 42 se 48 ke beech roka, toh bhi WIN!
+    // Dyscalculia ke liye thodi margin/chhoot dete hain (+/- 4 numbers ki)
     double difference = (_targetNumber - _currentPosition).abs();
 
     if (difference <= 4.0) {
-      // ✅ PERFECT PARKING
+      // ✅ PERFECT PARKING (Jeet gaye)
       playSound("success.mp3");
       PlayerStats.addXP(20);
       setState(() {
@@ -110,8 +118,8 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
       });
       speak(_feedbackText);
     } else {
-      // ❌ WRONG PARKING
-      playSound("tap.mp3"); // Error sound
+      // ❌ WRONG PARKING (Galat jagah roki)
+      playSound("tap.mp3"); 
       setState(() {
         _feedbackColor = Colors.redAccent;
         if (_currentPosition < _targetNumber) {
@@ -127,7 +135,7 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
       speak(_feedbackText);
     }
 
-    // 2.5 seconds baad gaadi wapas start line par
+    // 2.5 seconds baad gaadi wapas 0 par aur naya round start
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) _startNewRound();
     });
@@ -139,17 +147,10 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
     if (currentLanguage == 'hi-IN') headerText = "यहाँ तक चलाएं";
     if (currentLanguage == 'ne-NP') headerText = "यहाँ सम्म चलाउनुहोस्";
 
-    // Dynamic Road Width
-    double screenWidth = MediaQuery.of(context).size.width;
-    double padding = 20.0;
-    double roadWidth = screenWidth - (padding * 2);
-    
-    // Calculate Vehicle X Position pixel
-    double vehicleX = padding + (_currentPosition / 100) * (roadWidth - 40); // 40 is approx vehicle width offset
-
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
+        // App Bar UI (Score aur Back button)
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
@@ -177,9 +178,9 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
       body: BackgroundWrapper(
         child: Column(
           children: [
-            const SizedBox(height: 100),
+            const SizedBox(height: 90),
             
-            // TARGET CARD
+            // 1. TARGET CARD (Kahan jana hai)
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
               child: GlassCard(
@@ -196,9 +197,9 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
               ),
             ),
             
-            const SizedBox(height: 15),
+            const SizedBox(height: 10),
 
-            // VEHICLE GARAGE (Selection)
+            // 2. VEHICLE GARAGE (Gaadi select karne ka box)
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
@@ -213,114 +214,137 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
                       }
                     },
                     child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      padding: const EdgeInsets.all(10),
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: isSelected ? Colors.white.withOpacity(0.3) : Colors.transparent,
                         borderRadius: BorderRadius.circular(15),
                         border: Border.all(color: isSelected ? Colors.cyanAccent : Colors.white30, width: 2),
                       ),
-                      child: Text(_vehicles[index], style: const TextStyle(fontSize: 35)),
+                      child: Text(_vehicles[index], style: const TextStyle(fontSize: 30)),
                     ),
                   );
                 }),
               ),
             ),
 
-            const Spacer(),
-
-            // FEEDBACK TEXT (Perfect / Too Far)
+            // Feedback Text (Bich mein dikhega gaadi rokne par)
             if (_hasAnswered)
               Padding(
-                padding: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.only(top: 10),
                 child: Text(
                   _feedbackText,
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: _feedbackColor, shadows: const [Shadow(color: Colors.black, blurRadius: 4)]),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: _feedbackColor, shadows: const [Shadow(color: Colors.black, blurRadius: 4)]),
                 ),
               ),
 
-            // THE REALISTIC ROAD & NUMBER LINE
-            SizedBox(
-              height: 180,
-              width: screenWidth,
-              child: Stack(
-                children: [
-                  // 1. The Highway Road Painter
-                  Positioned.fill(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: padding),
-                      child: CustomPaint(painter: RoadPainter()),
-                    ),
-                  ),
-                  
-                  // 2. The Target Flag (Appears only after stopping)
-                  if (_hasAnswered)
-                    Positioned(
-                      left: padding + (_targetNumber / 100) * (roadWidth - 40) + 10,
-                      top: 20,
-                      child: Column(
-                        children: [
-                          const Text("📍", style: TextStyle(fontSize: 30)),
-                          Text(
-                            getLocalizedNumber(_targetNumber), 
-                            style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold, fontSize: 18, backgroundColor: Colors.black54)
-                          ),
-                        ],
+            // 3. THE VERTICAL ROAD (Main Game Area)
+            // Expanded widget isliye lagaya taaki screen ki bachi hui saari height ye road le le!
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Math Logic for Vertical Position
+                  double roadHeight = constraints.maxHeight; // Total available height
+                  double roadWidth = 140.0; // Highway ki chaurayi
+                  double paddingY = 40.0; // Top aur Bottom se thoda gap taaki gaadi kate nahi
+                  double availableHeight = roadHeight - (paddingY * 2);
+
+                  // Formula: 0 position par gaadi niche (bottom) hogi, 100 par upar (top) hogi.
+                  double vehicleY = paddingY + (1 - (_currentPosition / 100)) * availableHeight;
+                  // Flag ki Y position
+                  double flagY = paddingY + (1 - (_targetNumber / 100)) * availableHeight;
+
+                  return Stack(
+                    alignment: Alignment.center, // Sab kuch horizontally center mein rakhega
+                    children: [
+                      // A) Highway Road Painter (Niche background me draw hoga)
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width, // Poori screen ki width le raha hai drawing ke liye
+                        height: roadHeight,
+                        child: CustomPaint(painter: VerticalRoadPainter()),
                       ),
-                    ),
+                      
+                      // B) The Target Flag (Gaadi rokne ke baad dikhega)
+                      if (_hasAnswered)
+                        Positioned(
+                          top: flagY - 20, // Thoda adjust kiya taaki road ke side me dikhe
+                          right: (MediaQuery.of(context).size.width / 2) - (roadWidth / 2) - 60, // Road ke right side me
+                          child: Column(
+                            children: [
+                              const Text("📍", style: TextStyle(fontSize: 35)),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(color: Colors.redAccent, borderRadius: BorderRadius.circular(5)),
+                                child: Text(
+                                  getLocalizedNumber(_targetNumber), 
+                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
 
-                  // 3. The Driving Vehicle
-                  Positioned(
-                    left: vehicleX,
-                    top: _isDriving ? 68 + (_random.nextDouble() * 3) : 70, // Vibration effect while driving!
-                    child: Text(
-                      _vehicles[_selectedVehicleIndex],
-                      style: const TextStyle(fontSize: 50, shadows: [Shadow(color: Colors.black54, offset: Offset(3, 5), blurRadius: 5)]),
-                    ),
-                  ),
-                ],
+                      // C) The Driving Vehicle (Humari Gaadi)
+                      Positioned(
+                        // VIBRATION LOGIC: Agar chal rahi hai to X axis par thoda hilegi (shake hogi)
+                        left: _isDriving 
+                            ? (MediaQuery.of(context).size.width / 2) - 25 + (_random.nextDouble() * 4 - 2)
+                            : (MediaQuery.of(context).size.width / 2) - 25, 
+                        top: vehicleY - 25, // -25 is approximate center of emoji
+                        
+                        // 🔥 MAIN FIX: RotatedBox gaadi ko 90 degree rotate karta hai taaki wo UPAR (FORWARD) face kare!
+                        child: RotatedBox(
+                          quarterTurns: 1, // 1 Quarter Turn = 90 Degrees Clockwise
+                          child: Text(
+                            _vehicles[_selectedVehicleIndex],
+                            style: const TextStyle(fontSize: 50, shadows: [Shadow(color: Colors.black54, offset: Offset(3, 5), blurRadius: 5)]),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
               ),
             ),
 
-            const Spacer(),
-
-            // THE ACCELERATOR PEDAL
-            GestureDetector(
-              onTapDown: (_) => _startDriving(),
-              onTapUp: (_) => _stopDriving(),
-              onTapCancel: () => _stopDriving(),
-              child: Container(
-                width: 140,
-                height: 140,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: _isDriving 
-                        ? [Colors.green.shade600, Colors.greenAccent] 
-                        : [Colors.blue.shade600, Colors.cyanAccent],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(color: _isDriving ? Colors.greenAccent.withOpacity(0.6) : Colors.cyanAccent.withOpacity(0.6), blurRadius: 20, spreadRadius: 5)
-                  ],
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.speed, size: 40, color: _isDriving ? Colors.white : Colors.white70),
-                    const SizedBox(height: 5),
-                    Text(
-                      currentLanguage == 'hi-IN' ? "चलाएं" : (currentLanguage == 'ne-NP' ? "चलाउनुहोस्" : "DRIVE"),
-                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.white),
+            // 4. THE ACCELERATOR PEDAL (Sabse niche)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20, top: 10),
+              child: GestureDetector(
+                onTapDown: (_) => _startDriving(), // Dabane par chalegi
+                onTapUp: (_) => _stopDriving(), // Chhodne par rukegi
+                onTapCancel: () => _stopDriving(), // Agar ungli bahar fisal jaye to rukegi
+                child: Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: _isDriving 
+                          ? [Colors.green.shade600, Colors.greenAccent] 
+                          : [Colors.blue.shade600, Colors.cyanAccent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    const Text("(Hold)", style: TextStyle(color: Colors.white70, fontSize: 12)),
-                  ],
+                    boxShadow: [
+                      BoxShadow(color: _isDriving ? Colors.greenAccent.withOpacity(0.6) : Colors.cyanAccent.withOpacity(0.6), blurRadius: 20, spreadRadius: 5)
+                    ],
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.speed, size: 35, color: _isDriving ? Colors.white : Colors.white70),
+                      Text(
+                        currentLanguage == 'hi-IN' ? "चलाएं" : (currentLanguage == 'ne-NP' ? "चलाउनुहोस्" : "DRIVE"),
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                      ),
+                      const Text("(Hold)", style: TextStyle(color: Colors.white70, fontSize: 10)),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(height: 40),
           ],
         ),
       ),
@@ -329,50 +353,61 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
 }
 
 // ==========================================
-// --- REALISTIC ROAD & NUMBER LINE PAINTER ---
+// --- VERTICAL ROAD & NUMBER LINE PAINTER ---
 // ==========================================
-class RoadPainter extends CustomPainter {
+// Ye class poori road aur 0 se 100 tak ke markings khud code se draw karti hai
+class VerticalRoadPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Draw the dark asphalt road
-    final roadRect = Rect.fromLTWH(0, 50, size.width, 100);
-    final roadPaint = Paint()..color = const Color(0xFF2C3E50); // Dark grayish-blue asphalt
+    double roadWidth = 140.0; // Road ki motayi
+    double centerX = size.width / 2; // Screen ka beecho-beech point
+
+    // 1. Draw Asphalt (Dark Grey Road)
+    final roadPaint = Paint()..color = const Color(0xFF2C3E50);
+    final roadRect = Rect.fromCenter(center: Offset(centerX, size.height / 2), width: roadWidth, height: size.height);
     canvas.drawRect(roadRect, roadPaint);
 
-    // 2. Draw Top and Bottom Solid White Edge Lines
-    final edgePaint = Paint()..color = Colors.white..strokeWidth = 3;
-    canvas.drawLine(Offset(0, 55), Offset(size.width, 55), edgePaint);
-    canvas.drawLine(Offset(0, 145), Offset(size.width, 145), edgePaint);
+    // 2. Draw Solid White Edges (Road ke kinare wali line)
+    final edgePaint = Paint()..color = Colors.white..strokeWidth = 4;
+    double leftEdgeX = centerX - (roadWidth / 2) + 5;
+    double rightEdgeX = centerX + (roadWidth / 2) - 5;
+    canvas.drawLine(Offset(leftEdgeX, 0), Offset(leftEdgeX, size.height), edgePaint);
+    canvas.drawLine(Offset(rightEdgeX, 0), Offset(rightEdgeX, size.height), edgePaint);
 
-    // 3. Draw Center Dashed Yellow Line (Highway look)
-    final dashPaint = Paint()..color = Colors.amber..strokeWidth = 3;
-    double dashWidth = 20, dashSpace = 20, startX = 0;
-    while (startX < size.width) {
-      canvas.drawLine(Offset(startX, 100), Offset(startX + dashWidth, 100), dashPaint);
-      startX += dashWidth + dashSpace;
+    // 3. Draw Dashed Yellow Line (Highway ke bich ki lehrati yellow line)
+    final dashPaint = Paint()..color = Colors.amber..strokeWidth = 4;
+    double dashHeight = 25, dashSpace = 25, startY = 0;
+    while (startY < size.height) {
+      canvas.drawLine(Offset(centerX, startY), Offset(centerX, startY + dashHeight), dashPaint);
+      startY += dashHeight + dashSpace; // Ek dash aur ek khali space
     }
 
-    // 4. Draw Number Line Markers (0, 10, 20... 100)
+    // 4. Draw Number Line Markers (0, 10, 20... 100) on the Left Side
+    double paddingY = 40.0;
+    double availableHeight = size.height - (paddingY * 2);
     final markerPaint = Paint()..color = Colors.white..strokeWidth = 2;
+
     for (int i = 0; i <= 100; i += 10) {
-      double x = (i / 100) * (size.width - 40) + 20; // 40 is offset for vehicle width
+      // Niche se upar jane ka math (0 is bottom, 100 is top)
+      double y = paddingY + (1 - (i / 100)) * availableHeight;
       
-      // Draw tick mark
-      canvas.drawLine(Offset(x, 145), Offset(x, 160), markerPaint);
+      // Draw Tick Mark (Chhoti safed line) road ke left edge par
+      canvas.drawLine(Offset(leftEdgeX, y), Offset(leftEdgeX - 15, y), markerPaint);
       
-      // Draw text (Localized numbers!)
+      // Draw Numbers (Localized in Hindi/Nepali/English)
       final textPainter = TextPainter(
         text: TextSpan(
           text: getLocalizedNumber(i),
-          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
+          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
         ),
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      textPainter.paint(canvas, Offset(x - (textPainter.width / 2), 165));
+      // Text ko line ke theek left mein center align karna
+      textPainter.paint(canvas, Offset(leftEdgeX - 25 - textPainter.width, y - (textPainter.height / 2)));
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true; // Road update hoti rehni chahiye
 }

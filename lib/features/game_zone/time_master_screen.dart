@@ -102,10 +102,10 @@ class _TimeMasterScreenState extends State<TimeMasterScreen> with TickerProvider
     if (_currentHour == _targetHour && _currentMinute == _targetMinute) {
       // ✅ SUCCESS
       playSound("success.mp3");
-      PlayerStats.addXP(15);
+      PlayerStats.addXP(5);
       
       setState(() {
-        _score += 15;
+        _score += 5;
       });
 
       _triggerWinFeedback();

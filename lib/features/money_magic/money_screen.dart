@@ -63,7 +63,7 @@ class _MoneyScreenState extends State<MoneyScreen> {
 
   void _checkAnswer(int value) {
     if (value == targetNote['value']) {
-      PlayerStats.addXP(50);
+      PlayerStats.addXP(5);
       speak("Correct!");
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text("Correct! +50 XP",

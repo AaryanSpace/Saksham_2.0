@@ -225,11 +225,11 @@ class _NinjaScreenState extends State<NinjaScreen> with TickerProviderStateMixin
     if (item.isCorrect) {
       // 1. SUCCESS LOGIC
       playSound("success.mp3");
-      PlayerStats.addXP(10);
+      PlayerStats.addXP(5);
       _triggerWinFeedback(); // Show the big text and cheer!
 
       setState(() {
-        _score += 10;
+        _score += 5;
         _items.remove(item);
       });
 

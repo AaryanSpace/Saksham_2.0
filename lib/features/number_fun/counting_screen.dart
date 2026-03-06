@@ -48,7 +48,7 @@ class _CountingScreenState extends State<CountingScreen> {
       setState(() => cardColors.remove(number));
     } else {
       if (number == targetNumber) {
-        PlayerStats.addXP(10);
+        PlayerStats.addXP(5);
         setState(() => cardColors[number] = AppTheme.accentGreen);
         speak("Correct!");
         await Future.delayed(const Duration(milliseconds: 1000));

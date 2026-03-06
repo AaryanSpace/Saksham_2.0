@@ -9,14 +9,14 @@ import '../../core/widgets/background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/language_button.dart';
 
-class MathBalanceScreen extends StatefulWidget {
-  const MathBalanceScreen({super.key});
+class NumberBalanceScreen extends StatefulWidget {
+  const NumberBalanceScreen({super.key});
 
   @override
-  State<MathBalanceScreen> createState() => _MathBalanceScreenState();
+  State<NumberBalanceScreen> createState() => _NumberBalanceScreenState();
 }
 
-class _MathBalanceScreenState extends State<MathBalanceScreen> with TickerProviderStateMixin {
+class _NumberBalanceScreenState extends State<NumberBalanceScreen> with TickerProviderStateMixin {
   // --- GAME VARIABLES ---
   int _score = 0;
   final Random _random = Random();
@@ -112,11 +112,11 @@ class _MathBalanceScreenState extends State<MathBalanceScreen> with TickerProvid
       // ✅ SAHI JAWAB (BALANCED)
       playSound("success.mp3");
       _triggerWinFeedback();
-      PlayerStats.addXP(15);
+      PlayerStats.addXP(5);
       
       setState(() {
         _isTransitioning = true;
-        _score += 15;
+        _score += 5;
       });
 
       // 2 Second baad naya round start

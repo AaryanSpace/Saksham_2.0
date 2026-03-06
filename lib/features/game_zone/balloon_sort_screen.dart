@@ -133,11 +133,11 @@ class _BalloonSortScreenState extends State<BalloonSortScreen> with TickerProvid
       // ✅ CORRECT ANSWER
       playSound("success.mp3");
       _triggerWinVoice(); // 🔥 NAYA: Khushi wali aawaz bolega aur animation chalayega!
-      PlayerStats.addXP(15);
+      PlayerStats.addXP(5);
       
       setState(() {
         _isTransitioning = true; 
-        _score += 10;
+        _score += 5;
         tappedBalloon.state = BalloonState.smiling;
         tappedBalloon.speed = 0.04; 
       });

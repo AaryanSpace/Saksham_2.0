@@ -110,7 +110,7 @@ class _DriveAndLearnScreenState extends State<DriveAndLearnScreen> with TickerPr
       playSound("success.mp3");
       PlayerStats.addXP(20);
       setState(() {
-        _score += 15;
+        _score += 5;
         _feedbackColor = Colors.greenAccent;
         if (currentLanguage == 'hi-IN') _feedbackText = "बिल्कुल सही जगह! 🏆";
         else if (currentLanguage == 'ne-NP') _feedbackText = "उत्कृष्ट पार्किङ! 🏆";

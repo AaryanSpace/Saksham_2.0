@@ -8,14 +8,14 @@ import '../../core/widgets/background_wrapper.dart';
 import '../../core/widgets/glass_card.dart';
 import '../../core/widgets/language_button.dart';
 
-class MathBalanceScreen extends StatefulWidget {
-  const MathBalanceScreen({super.key});
+class EnergyBalanceScreen extends StatefulWidget {
+  const EnergyBalanceScreen({super.key});
 
   @override
-  State<MathBalanceScreen> createState() => _MathBalanceScreenState();
+  State<EnergyBalanceScreen> createState() => _EnergyBalanceScreenState();
 }
 
-class _MathBalanceScreenState extends State<MathBalanceScreen> with TickerProviderStateMixin {
+class _EnergyBalanceScreenState extends State<EnergyBalanceScreen> with TickerProviderStateMixin {
   int _score = 0;
   final Random _random = Random();
   
@@ -100,11 +100,11 @@ class _MathBalanceScreenState extends State<MathBalanceScreen> with TickerProvid
       // ✅ SUCCESS
       playSound("success.mp3");
       _triggerWinFeedback();
-      PlayerStats.addXP(15);
+      PlayerStats.addXP(5);
       
       setState(() {
         _isTransitioning = true;
-        _score += 15;
+        _score += 5;
       });
 
       Future.delayed(const Duration(milliseconds: 2000), () {
